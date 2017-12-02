@@ -59,6 +59,12 @@ class Events:
     def has_num(self):
         return self.has(self.is_num)
 
+    def is_n(self, event):
+        return event.type == sdl2.SDL_KEYUP and event.key.keysym.sym == sdl2.SDLK_n
+
+    def has_n(self):
+        return self.has(self.is_n)
+
     def get_nums(self):
         return list(map(self.get_num, self.matching(self.is_num)))
 

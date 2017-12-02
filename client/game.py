@@ -92,7 +92,6 @@ class Game:
 
     def loop(self):
         self.running = True
-        self.was_n_down = False
         c_time = time.time()
         while self.running:
             self.client.listen()
@@ -121,34 +120,36 @@ class Game:
                     if 'size' in msg:
                         ball.size = (msg['size']['x'], msg['size']['y'])
                 else:
-                    self.ball_list[msg['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
+                    self.ball_list[msg['ball_id']] = Ball(msg['pos'],msg['vel'],msg['size'])
+                    ball = self.ball_list[msg['ball_id']]
 
                 touched[msg['ball_id']] = True
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
 
-        if self.events.has_key(sdl2.SDLK_n):
-            if not self.was_n_down:
-                t = 0
-                for x in range(0, 10**10):
-                    if x not in self.ball_list:
-                        t = x
-                msg = {
-                    'ball_id': x,
-                    'vel': {
-                        'x': 1,
-                        'y': 1
-                    },
-                    'pos': {
-                        'x': self.renderer.get_rightmost_edge(),
-                        'y': 0.5
-                    },
-                    'time': c_time
-                }
-                self.client.send_ballchange(msg)
-            self.was_n_down = True
-        else:
-            self.was_n_down = False
+        if self.events.has_n():
+            t = 0
+            for x in range(0, 10**10):
+                if x not in self.ball_list:
+                    t = x
+                    break
+            msg = {
+                'ball_id': x,
+                'vel': {
+                    'x': 1,
+                    'y': 1
+                },
+                'pos': {
+                    'x': self.width / 2,
+                    'y': 0.5
+                },
+                'size': {
+                    'x': 0.05,
+                    'y': 0.05
+                },
+                'time': c_time
+            }
+            self.client.send_ballchange(msg)
 
         balls_to_remove = []
         for i, ball in self.ball_list.items():
