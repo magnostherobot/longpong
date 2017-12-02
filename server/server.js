@@ -1,8 +1,7 @@
 #!/bin/node
 
 const net = require('net');
-const port = 3000;
-const add = '127.0.0.1';
+const port = parseInt(process.argv[2]);
 
 let running = false;
 let clients = new Set();
@@ -72,4 +71,4 @@ let server = net.createServer((s) => {
 
 server.listen(port);
 
-console.log('server started', port, add);
+console.log('server started', port);
