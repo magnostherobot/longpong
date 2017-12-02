@@ -38,6 +38,7 @@ class Game:
         self.renderer = renderer
         self.paddle_list = []
         self.ball_list = {}
+        self.score = (0, 0)
 
     def start(self):
         self.place_windows()
@@ -94,7 +95,7 @@ class Game:
             p_time = c_time
             c_time = time.time()
             self.update(c_time, p_time)
-            self.renderer.render(self.ball_list.values(), self.paddle_list, (0, 0))
+            self.renderer.render(self.ball_list.values(), self.paddle_list, self.score)
 
     def update(self, c_time, p_time):
         deltaT = c_time - p_time
@@ -114,6 +115,7 @@ class Game:
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
 
+        balls_to_remove = []
         for i, ball in self.ball_list.items():
             if not touched[i]:
                 ball.move(deltaT)
@@ -140,4 +142,12 @@ class Game:
                         'time': c_time
                     }
                     self.client.send_ballchange(msg)
-
+            # ball goes off the edge of the screen
+            if ball.pos[0] <= 0:
+                self.score = (self.score[0], self.score[1] + 1)
+                balls_to_remove.append(i)
+            elif ball.pos[0] + ball.size[0] >= self.renderer.get_rightmost_edge():
+                self.score = (self.score[0] + 1, self.score[1])
+                balls_to_remove.append(i)
+        for ball in balls_to_remove:
+            del self.ball_list[ball]
