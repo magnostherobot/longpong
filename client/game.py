@@ -133,8 +133,9 @@ class Game:
             # bounce the balls off the paddles
             for paddle in self.paddle_list:
                 if ball.is_touching(paddle):
-                    ball.vel = (-1.1 * ball.vel[0],
-                            ball.vel[1] + 1 * ((paddle.pos[1] + (paddle.size[1] / 2)) - (ball.pos[1] + (ball.size[1] / 2))))
+                    paddle_centre = paddle.pos[1] + paddle.size[1] / 2
+                    ball_centre = ball.pos[1] + ball.size[1] / 2
+                    ball.vel = (-1.1 * ball.vel[0], ball.vel[1] - 10 * (paddle_centre - ball_centre))
                     msg = {
                         'ball_id': i,
                         'vel': {
@@ -160,8 +161,7 @@ class Game:
             b.reset()
             b.vel = (b.vel[0] * direction, b.vel[1])
         # self.events.has_key
-        paddle_speed = 0.2 * deltaT
-        print(self.paddle_list[0].pos[1])
+        paddle_speed = 0.4 * deltaT
         if len(self.paddle_list) >= 1:
             if self.events.has_key(sdl2.SDLK_w):
                 if self.paddle_list[0].pos[1] > 0:
