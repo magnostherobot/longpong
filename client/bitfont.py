@@ -61,8 +61,12 @@ _bitfont_9 = [ True, True, True,
 _bitfonts = [ _bitfont_0, _bitfont_1, _bitfont_2, _bitfont_3, _bitfont_4, _bitfont_5, _bitfont_6, _bitfont_7, _bitfont_8, _bitfont_9 ]
 
 def bitfont(number):
-    # Create the fonts
-    # Generate the digits
+    """
+    Convert a base 10 number into a bitfont, which is represented by a list
+    representing a 3x5 grid, row by row. A value of True represents a cell
+    that should be drawn and a value of False represents a cell that should
+    be left blank.
+     """
     result = []
     number = add_digit(result, number)
     while number > 0:
