@@ -30,7 +30,8 @@ class Client:
             else:
                 print("It really shouldn't be here")
 
-        except socket.error, e:
+        except socket.error as e:
+            pass
 
     def get_messages(self):
         ret = self.msgs[:]
