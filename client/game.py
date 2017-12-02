@@ -57,7 +57,7 @@ class Game:
                     print(self.ball_list)
                     if (msg[0]['info']['offset'] == 0):
                         self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
-                    elif (self.renderer.get_rightmost_edge() == msg[0]['total_w']):
+                    elif (self.renderer.get_rightmost_edge() == msg[0]['info']['total_w']):
                         self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
                     break
             # Tell the server to start if the spacebar is pressed
