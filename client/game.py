@@ -5,17 +5,20 @@ import sys
 
 class Ball:
     def __init__(self, pos, vel, size):
-        self.pos = pos
-        self.vel = vel
-        self.size = size
+        self.pos = (pos['x'], pos['y'])
+        self.vel = (vel['x'], vel['y'])
+        self.size = (size['x'], size['y'])
+
+    def __str__(self):
+        return str(self.pos) + str(self.vel) + str(self.size)
 
     def move(self, dt):
         self.pos = (
-                self.pos[0] + (self.vel[0] * dt),
-                self.pos[1] + (self.vel[1] * dt)
+                self.pos[0] + (self.vel[0] * dt) / 10,
+                self.pos[1] + (self.vel[1] * dt) / 10,
                 )
 
-    def is_touching_paddle(self, paddle):
+    def is_touching(self, paddle):
         return not (
                 self.pos[0] > paddle.pos[0] + paddle.size[0] or
                 self.pos[1] > paddle.pos[1] + paddle.size[1] or
@@ -34,7 +37,7 @@ class Game:
         self.events = events
         self.renderer = renderer
         self.paddle_list = []
-        self.ball_list = []
+        self.ball_list = {}
 
     def start(self):
         self.place_windows()
@@ -45,14 +48,18 @@ class Game:
         while not self.client.has_started():
             self.client.listen()
             if self.client.has_started():
+               
                 msg = self.client.get_messages()
-                self.renderer.set_offset(msg[0]['offset'])
-                self.ball_list[msg[0]['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
-                if (msg[0]['offset'] == 0):
-                    self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
-                elif (self.renderer.get_rightmost_edge() == msg[0]['total_w']):
-                    self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
-                break
+                print("message is "+ str(msg))
+                if msg != []:
+                    self.renderer.set_offset(msg[0]['info']['offset'])
+                    self.ball_list[msg[0]['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
+                    print(self.ball_list)
+                    if (msg[0]['info']['offset'] == 0):
+                        self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
+                    elif (self.renderer.get_rightmost_edge() == msg[0]['total_w']):
+                        self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
+                    break
             # Tell the server to start if the spacebar is pressed
             self.events.poll()
             if self.events.has_quit():
@@ -75,6 +82,7 @@ class Game:
 
     def loop(self):
         self.running = True
+        c_time = time.time()
         while self.running:
             self.client.listen()
             # Quit on quit input or when the server stops
@@ -82,15 +90,15 @@ class Game:
             if self.events.has_quit() or self.client.has_stopped():
                 self.running = False
                 break
-            p_time = time
-            time = time.time()
-            self.update(time, p_time)
-            self.renderer.render(ball_list, paddle_list, (0, 0))
+            p_time = c_time
+            c_time = time.time()
+            self.update(c_time, p_time)
+            self.renderer.render(self.ball_list.values(), self.paddle_list, (0, 0))
 
-    def update(self, time, p_time):
-        deltaT = time - p_time
-        msgs = self.client.get_messages
-        touched = [False for x in ball_list]
+    def update(self, c_time, p_time):
+        deltaT = c_time - p_time
+        msgs = self.client.get_messages()
+        touched = {x : False for x in self.ball_list}  
         for msg in msgs:
             if (msg['command'] == 'bchange'):
                 touched[msg['ball_id']] = True
@@ -102,19 +110,21 @@ class Game:
                 if size in msg:
                     ball.size = (msg['size'][0], msg['size'][1])
 
-                l_deltaT = time - msg['time']
+                l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
-        for i, ball in enumerate(ball_list):
+
+        for i, ball in self.ball_list.items():
             # move the balls
+            print(ball)
             if not touched[i]:
                 ball.move(deltaT)
             # bounce the balls off the walls
             if (ball.pos[1] <= 0):
-                ball.vel[1] = -ball.vel[1]
+                ball.vel = (ball.vel[0], -ball.vel[1])
             elif (ball.pos[1] + ball.size[1] >= 1):
-                ball.vel[1] = -ball.vel[1]
+                ball.vel = (ball.vel[0], -ball.vel[1])
             # bounce the balls off the paddles
-            for paddle in paddle_list:
+            for paddle in self.paddle_list:
                 if ball.is_touching(paddle):
                     ball.vel[0] = -1.1 * ball.vel[0]
                     ball.vel[1] = ball.vel[1] + 1 * ((paddle.pos[1] + (paddle.size[1] / 2)) - (ball.pos[1] + (ball.size[1] / 2)))
@@ -128,7 +138,7 @@ class Game:
                             'x': ball.pos[0],
                             'y': ball.pos[1]
                         },
-                        'time': time
+                        'time': c_time
                     }
                     self.client.send_ballchange(msg)
 

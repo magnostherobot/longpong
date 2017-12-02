@@ -15,18 +15,19 @@ class Client:
     def listen(self):
         try:
             msg = self.sock.recv(4096)
-            jsonMSG = json.loads(msg)
+            jsonMSG = json.loads(msg.decode())
             print(jsonMSG)
-            if 'command' in data:
+            if 'command' in jsonMSG:
                 val = jsonMSG['command']
                 if val == 'start':
                     self.started = True
                     self.startupMessage = jsonMSG
+                    self.msgs.append(jsonMSG)
                 elif val =='stop':
                         self.stopped = True
                         self.stoppedMessage = jsonMSG
                 else:
-                        msgs.append(jsonMSG)
+                        self.msgs.append(jsonMSG)
             else:
                 print("It really shouldn't be here")
 
@@ -36,11 +37,14 @@ class Client:
     def get_messages(self):
         ret = self.msgs[:]
         self.msgs = []
+        return ret
 
     def send_init(self,screen):
         inp = {}
-        inp['nValue'] = self.n;
-        inp['screenSize'] = str(screen)
+        inp['info'] = {
+                "scr_i":  self.n,
+                "scr_w": screen
+        }
         self.sock.sendall(str(json.dumps(inp)).encode())
 
     def send_start(self):

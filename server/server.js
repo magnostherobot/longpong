@@ -11,7 +11,7 @@ function forward(d) {
     case 'start':
       if (!running) {
         running = true;
-        console.log('clients', clients);
+        console.log('game starting!');
         let t = [...clients]
           .map(x => x.scr_w)
           .reduce((a, b) => { return parseInt(a) + parseInt(b) }, 0);
@@ -20,6 +20,7 @@ function forward(d) {
         [...clients]
           .sort((a, b) => { return a.scr_i - b.scr_i })
           .forEach((x) => {
+            console.log('.');
             let m = {
               command: 'start',
               info: {
@@ -59,12 +60,15 @@ let server = net.createServer((s) => {
   s.on('data', (data) => {
     var d = JSON.parse(data.toString());
     console.log(d);
+
+    console.log(d.info);
+    console.log(d);
     if (d.command) {
       forward(d);
     } else if (d.info && !running) {
       update(s, d.info);
     } else {
-      console.log('not expecting ' + d);
+      console.log('not expecting ' + JSON.stringify(d));
     }
   });
 });
