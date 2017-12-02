@@ -44,7 +44,7 @@ function forward(d) {
       clients.clear();
     default:
       if (!d.time) d.time = (new Date()).getTime();
-      clients.forEach(x => x.write(JSON.stringify(d)));
+      clients.forEach(x => x.write(JSON.stringify(d) + '|'));
   }
 }
 
@@ -58,18 +58,24 @@ let server = net.createServer((s) => {
   console.log('new client: ' + s.remoteAddress);
   
   s.on('data', (data) => {
-    var d = JSON.parse(data.toString());
-    console.log(d);
+    let messages = data.toString().split('|')
+    messages.forEach((message, index) => {
+      if (message.length <= 0) {
+        return;
+      }
+      var d = JSON.parse(message.toString());
+      console.log(d);
 
-    console.log(d.info);
-    console.log(d);
-    if (d.command) {
-      forward(d);
-    } else if (d.info && !running) {
-      update(s, d.info);
-    } else {
-      console.log('not expecting ' + JSON.stringify(d));
-    }
+      console.log(d.info);
+      console.log(d);
+      if (d.command) {
+        forward(d);
+      } else if (d.info && !running) {
+        update(s, d.info);
+      } else {
+        console.log('not expecting ' + JSON.stringify(d));
+      }
+    });
   });
 });
 

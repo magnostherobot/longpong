@@ -6,16 +6,22 @@ import sys
 class Ball:
     def __init__(self, pos, vel, size):
         self.pos = (pos['x'], pos['y'])
+        self.init_pos = (pos['x'], pos['y'])
         self.vel = (vel['x'], vel['y'])
+        self.init_vel = (vel['x'], vel['y'])
         self.size = (size['x'], size['y'])
+
+    def reset(self):
+        self.pos = self.init_pos
+        self.vel = self.init_vel
 
     def __str__(self):
         return str(self.pos) + str(self.vel) + str(self.size)
 
     def move(self, dt):
         self.pos = (
-                self.pos[0] + (self.vel[0] * dt) / 5,
-                self.pos[1] + (self.vel[1] * dt) / 5,
+                self.pos[0] + (self.vel[0] * dt) / 2,
+                self.pos[1] + (self.vel[1] * dt) / 2,
                 )
 
     def is_touching(self, paddle):
@@ -154,8 +160,10 @@ class Game:
             # bounce the balls off the paddles
             for paddle in self.paddle_list:
                 if ball.is_touching(paddle):
-                    ball.vel = (-1.1 * ball.vel[0],
-                            ball.vel[1] + 1 * ((paddle.pos[1] + (paddle.size[1] / 2)) - (ball.pos[1] + (ball.size[1] / 2))))
+                    paddle_centre = paddle.pos[1] + paddle.size[1] / 2
+                    ball_centre = ball.pos[1] + ball.size[1] / 2
+                    ball_vel_sign = ball.vel[1] / abs(ball.vel[1])
+                    ball.vel = (-1.1 * ball.vel[0], ball.vel[1] + ball_vel_sign * 5 * -(paddle_centre - ball_centre))
                     msg = {
                         'ball_id': i,
                         'vel': {
@@ -172,15 +180,16 @@ class Game:
             # ball goes off the edge of the screen
             if ball.pos[0] <= 0:
                 self.score = (self.score[0], self.score[1] + 1)
-                balls_to_remove.append(i)
+                balls_to_remove.append((i, 1))
             elif ball.pos[0] + ball.size[0] >= self.renderer.get_rightmost_edge():
                 self.score = (self.score[0] + 1, self.score[1])
-                balls_to_remove.append(i)
-        for ball in balls_to_remove:
-            del self.ball_list[ball]
+                balls_to_remove.append((i, -1))
+        for (ball, direction) in balls_to_remove:
+            b = self.ball_list[ball]
+            b.reset()
+            b.vel = (b.vel[0] * direction, b.vel[1])
         # self.events.has_key
-        paddle_speed = 0.2 * deltaT
-        print(self.paddle_list[0].pos[1])
+        paddle_speed = 0.4 * deltaT
         if len(self.paddle_list) >= 1:
             if self.events.has_key(sdl2.SDLK_w):
                 if self.paddle_list[0].pos[1] > 0:

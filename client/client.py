@@ -14,22 +14,29 @@ class Client:
 
     def listen(self):
         try:
-            msg = self.sock.recv(4096)
-            jsonMSG = json.loads(msg.decode())
-            print(jsonMSG)
-            if 'command' in jsonMSG:
-                val = jsonMSG['command']
-                if val == 'start':
-                    self.started = True
-                    self.startupMessage = jsonMSG
-                    self.msgs.append(jsonMSG)
-                elif val =='stop':
-                        self.stopped = True
-                        self.stoppedMessage = jsonMSG
-                else:
+            msg = self.sock.recv(4096).decode()
+            for message in msg.split('|'):
+                if len(message) <= 0:
+                    continue
+                try:
+                    jsonMSG = json.loads(message)
+                except json.decoder.JSONDecodeError as e:
+                    print(message)
+                    sys.exit(1)
+                print(jsonMSG)
+                if 'command' in jsonMSG:
+                    val = jsonMSG['command']
+                    if val == 'start':
+                        self.started = True
+                        self.startupMessage = jsonMSG
                         self.msgs.append(jsonMSG)
-            else:
-                print("It really shouldn't be here")
+                    elif val =='stop':
+                            self.stopped = True
+                            self.stoppedMessage = jsonMSG
+                    else:
+                            self.msgs.append(jsonMSG)
+                else:
+                    print("It really shouldn't be here")
 
         except socket.error as e:
             pass
@@ -60,7 +67,8 @@ class Client:
     def send_ballchange(self, msg):
         msg['command'] = "bchange"
         jsonVal = json.dumps(msg)
-        self.sock.sendall(str(jsonVal).encode())
+        message = str(jsonVal) + "|"
+        self.sock.sendall(message.encode())
 
     def has_started(self):
         return self.started
