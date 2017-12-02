@@ -1,16 +1,16 @@
 import sdl2.ext
 import sys
 
-import client
-import events
-import game
-import render
+from client import Client
+from events import Events
+from game import Game, Rect
+from render import Renderer
 
 def main(args):
     sdl2.ext.init()
 
     ip = args[1]
-    port = args[2]
+    port = int(args[2])
     num = args[3]
     num_windows = int(args[4])
 
@@ -18,8 +18,7 @@ def main(args):
     events = Events()
     renderer = Renderer('looongpooong', (800, 600), num_windows)
     game = Game(client, events, renderer)
-
-    sdl2.ext.stop()
+    game.start()
 
     return 0
 
