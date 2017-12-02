@@ -121,7 +121,7 @@ class Game:
                     if 'size' in msg:
                         ball.size = (msg['size']['x'], msg['size']['y'])
                 else:
-                    ball_list[msg['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
+                    self.ball_list[msg['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
 
                 touched[msg['ball_id']] = True
                 l_deltaT = c_time - msg['time']
@@ -131,7 +131,7 @@ class Game:
             if not self.was_n_down:
                 t = 0
                 for x in range(0, 10**10):
-                    if x not in ball_list:
+                    if x not in self.ball_list:
                         t = x
                 msg = {
                     'ball_id': x,
