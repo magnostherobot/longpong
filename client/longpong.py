@@ -3,7 +3,7 @@ import sys
 
 from client import Client
 from events import Events
-from game import Game, Rect
+from game import Game
 from render import Renderer
 
 def main(args):

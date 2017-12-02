@@ -10,11 +10,11 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((ip,port))
         self.n = n
-        self.client_sock.setblocking(False)
+        self.sock.setblocking(False)
 
     def listen(self):
         try:
-            msg = client_sock.recv(4096)
+            msg = self.sock.recv(4096)
             jsonMSG = json.loads(msg)
             print(jsonMSG)
             if 'command' in data:
@@ -41,22 +41,22 @@ class Client:
         inp = {}
         inp['nValue'] = self.n;
         inp['screenSize'] = str(screen)
-        self.client_sock.send(str(json.dumps(inp)))
+        self.sock.sendall(str(json.dumps(inp)).encode())
 
     def send_start(self):
         msg ={'command':'start'}
         jsonVal = json.dumps(msg)
-        self.client_sock.send(str(jsonVal))
+        self.sock.sendall(str(jsonVal).encode())
 
     def send_stop(self):
         msg ={'command':'stop'}
         jsonVal = json.dumps(msg)
-        self.client_sock.send(str(jsonVal))
+        self.sock.sendall(str(jsonVal).encode())
 
     def send_ballchange(self,message):
         msg['command'] = "bchange"
         jsonVal = json.dumps(msg)
-        self.client_sock.send(str(jsonVal))
+        self.sock.sendall(str(jsonVal).encode())
 
     def has_started(self):
         return self.started

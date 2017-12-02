@@ -59,18 +59,18 @@ class Renderer:
 
     def draw_ball(self, screen, offset, ball):
         if ball != None:
-            rect = sdl2.SDL_Rect(int((ball.x - offset) * screen.height),
-                    int(ball.y * screen.height),
-                    int(ball.width * screen.height),
-                    int(ball.height * screen.height))
+            rect = sdl2.SDL_Rect(int((ball.pos[0] - offset) * screen.height),
+                    int(ball.pos[1] * screen.height),
+                    int(ball.size[0] * screen.height),
+                    int(ball.size[1] * screen.height))
             sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
 
     def draw_paddle(self, screen, offset, paddle):
         if paddle != None:
-            rect = sdl2.SDL_Rect(int((paddle.x - offset) * screen.height),
-                    int(paddle.y * screen.height),
-                    int(paddle.width * screen.height),
-                    int(paddle.height * screen.height))
+            rect = sdl2.SDL_Rect(int((paddle.pos[0] - offset) * screen.height),
+                    int(paddle.pos[1] * screen.height),
+                    int(paddle.size[0] * screen.height),
+                    int(paddle.size[1] * screen.height))
             sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
     
     def draw_score(self, screen, scores):

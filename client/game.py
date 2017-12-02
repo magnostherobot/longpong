@@ -2,13 +2,6 @@ import time
 import sdl2
 import sdl2.ext
 
-class Rect:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
 class Ball:
     def __init__(self, pos, vel, size):
         self.pos = pos
@@ -45,7 +38,7 @@ class Game:
     def start(self):
         self.place_windows()
         # Tell the server how wide the screen is
-        full_width = sum(self.renderer.get_screen_widths)
+        full_width = sum(self.renderer.get_screen_widths())
         self.client.send_init(full_width)
         # Wait for a start event
         while not self.client.has_started():
@@ -84,8 +77,10 @@ class Game:
             if self.events.has_quit() or self.client.has_stopped():
                 self.running = False
                 break
-            self.update(None)
-            self.renderer.render(None, None)
+            p_time = time
+            time = time.time()
+            self.update(time, p_time)
+            self.renderer.render(ball_list, paddle_list, (0, 0))
 
     def update(self, time, p_time):
         deltaT = time - p_time
@@ -128,7 +123,7 @@ class Game:
                             'x': ball.pos[0],
                             'y': ball.pos[1]
                         },
-                        'time': time.time()
+                        'time': time
                     }
                     self.client.send_ballchange(msg)
 
