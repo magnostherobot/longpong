@@ -76,6 +76,12 @@ class Renderer:
             sdl2.SDL_SetWindowSize(window.window, rect.w, rect.h)
             sdl2.SDL_SetWindowFullscreen(window.window, sdl2.SDL_WINDOW_FULLSCREEN)
 
+    def get_rightmost_edge(self):
+        """
+        Get the relative coordinate of the rightmost edge.
+        """
+        return self.offset + sum(self.get_screen_widths())
+
     def get_screen_widths(self):
         """
         Get the relative screen widths in screen order.
