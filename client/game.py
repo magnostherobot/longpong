@@ -84,6 +84,7 @@ class Game:
 
     def loop(self):
         self.running = True
+        was_n_down = False
         c_time = time.time()
         while self.running:
             self.client.listen()
@@ -103,7 +104,7 @@ class Game:
         touched = {x : False for x in self.ball_list}  
         for msg in msgs:
             if (msg['command'] == 'bchange'):
-                if msg['ball_id'] in ball_list:
+                if msg['ball_id'] in self.ball_list:
                     ball = self.ball_list[msg['ball_id']]
                     if 'vel' in msg:
                         ball.vel = (msg['vel']['x'], msg['vel']['y'])
@@ -117,6 +118,29 @@ class Game:
                 touched[msg['ball_id']] = True
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
+
+        if self.event.has_key(sdl2.SDLK_n):
+            if not was_n_down:
+                t = 0
+                for x in range(0, 10**10):
+                    if x not in ball_list:
+                        t = x
+                msg = {
+                    'ball_id': x,
+                    'vel': {
+                        'x': 1,
+                        'y': 1
+                    },
+                    'pos': {
+                        'x': self.renderer.get_rightmost_edge(),
+                        'y': 0.5
+                    },
+                    'time': c_time
+                }
+                self.client.send_ballchange(msg)
+            was_n_down = True
+        else:
+            was_n_down = False
 
         balls_to_remove = []
         for i, ball in self.ball_list.items():
