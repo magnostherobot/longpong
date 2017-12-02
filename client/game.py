@@ -135,7 +135,8 @@ class Game:
                 if ball.is_touching(paddle):
                     paddle_centre = paddle.pos[1] + paddle.size[1] / 2
                     ball_centre = ball.pos[1] + ball.size[1] / 2
-                    ball.vel = (-1.1 * ball.vel[0], ball.vel[1] - 10 * (paddle_centre - ball_centre))
+                    ball_vel_sign = ball.vel[1] / abs(ball.vel[1])
+                    ball.vel = (-1.1 * ball.vel[0], ball.vel[1] + ball_vel_sign * 5 * -(paddle_centre - ball_centre))
                     msg = {
                         'ball_id': i,
                         'vel': {
