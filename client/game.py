@@ -81,7 +81,7 @@ class Game:
             self.client.listen()
             # Quit on quit input or when the server stops
             self.events.poll()
-            if self.events.is_quit() or self.client.has_stopped():
+            if self.events.has_quit() or self.client.has_stopped():
                 self.running = False
                 break
             self.update(None)
