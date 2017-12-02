@@ -23,13 +23,18 @@ class Renderer:
         """
         self.fg = fg
         self.bg = bg
+        self.offset = 0
         self.screens = []
         for i in range(num_windows):
             screen = Screen(title, i, dimensions)
             self.screens.append(screen)
             screen.window.show()
 
-    def render(self, ball, paddle):
+    def set_offset(self, offset):
+        self.offset = offset
+
+    def render(self, balls, paddles):
+        offset = self.offset
         for screen in self.screens:
             # Clear the screen with the background colour
             screen.renderer.color = sdl2.ext.Color(self.bg[0], self.bg[1], self.bg[2], 255)
@@ -37,17 +42,21 @@ class Renderer:
             # Set the foreground colour for drawing
             screen.renderer.color = sdl2.ext.Color(self.fg[0], self.fg[1], self.fg[2], 255)
             # Draw the elements
-            self.draw_ball(screen.renderer, ball)
-            self.draw_paddle(screen.renderer, paddle)
+            for ball in balls:
+                self.draw_ball(screen.renderer, offset, ball)
+            for paddle in paddles:
+                self.draw_paddle(screen.renderer, paddle)
             # Display this screen
             sdl2.SDL_RenderPresent(screen.renderer.sdlrenderer)
+            # Increase the rendering offset
+            offset += int(screen.width * screen.height)
 
-    def draw_ball(self, renderer, ball):
+    def draw_ball(self, renderer, offset, ball):
         if ball != None:
-            rect = sdl2.SDL_Rect(ball.x, ball.y, ball.width, ball.height)
+            rect = sdl2.SDL_Rect(ball.x - offset, ball. - offsety, ball.width, ball.height)
             sdl2.SDL_RenderFillRect(renderer.sdlrenderer, rect)
 
-    def draw_paddle(self, renderer, paddle):
+    def draw_paddle(self, renderer, offset, paddle):
         if paddle != None:
             rect = sdl2.SDL_Rect(paddle.x, paddle.y, paddle.width, paddle.height)
             sdl2.SDL_RenderFillRect(renderer.sdlrenderer, rect)

@@ -28,6 +28,7 @@ class Game:
             self.events.poll()
             if self.events.has_space():
                 self.client.send_start()
+        # TODO: set the renderer offset
         # Run the game loop
         self.loop()
 
