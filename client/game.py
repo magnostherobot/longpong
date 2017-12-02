@@ -158,16 +158,16 @@ class Game:
         paddle_speed = 0.2 * deltaT
         print(self.paddle_list[0].pos[1])
         if len(self.paddle_list) >= 1:
-            if self.events.has_key(sdl2.SDLK_UP):
+            if self.events.has_key(sdl2.SDLK_w):
                 if self.paddle_list[0].pos[1] > 0:
                     self.paddle_list[0].pos = (self.paddle_list[0].pos[0], self.paddle_list[0].pos[1] - paddle_speed)
-            elif self.events.has_key(sdl2.SDLK_DOWN):
+            elif self.events.has_key(sdl2.SDLK_s):
                 if self.paddle_list[0].pos[1] + self.paddle_list[0].size[1] < 1:
                     self.paddle_list[0].pos = (self.paddle_list[0].pos[0], self.paddle_list[0].pos[1] + paddle_speed)
         if len(self.paddle_list) >= 2:
-            if self.events.has_key(sdl2.SDLK_w):
+            if self.events.has_key(sdl2.SDLK_UP):
                 if self.paddle_list[1].pos[1] > 0:
                     self.paddle_list[1].pos = (self.paddle_list[1].pos[0], self.paddle_list[1].pos[1] - paddle_speed)
-            elif self.events.has_key(sdl2.SDLK_s):
+            elif self.events.has_key(sdl2.SDLK_DOWN):
                 if self.paddle_list[1].pos[1] + self.paddle_list[1].size[1] < 1:
                     self.paddle_list[1].pos = (self.paddle_list[1].pos[0], self.paddle_list[1].pos[1] + paddle_speed)
