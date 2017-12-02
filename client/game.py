@@ -1,6 +1,13 @@
 import sdl2
 import sdl2.ext
 
+class Rect:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
 class Game:
     def __init__(self, client, events, renderer):
         self.client = client
@@ -8,14 +15,7 @@ class Game:
         self.renderer = renderer
 
     def start(self):
-        # Place the windows
-        while True:
-            self.events.poll()
-            if self.events.has_num():
-                for numkey in self.events.get_nums():
-                    renderer.maximise_window(numkey)
-            if self.events.has_return():
-                break
+        self.place_windows()
         # Tell the server how wide the screen is
         full_width = sum(self.renderer.get_screen_widths)
         self.client.send_init(full_width)
@@ -31,6 +31,15 @@ class Game:
         # TODO: set the renderer offset
         # Run the game loop
         self.loop()
+
+    def place_windows(self):
+        while True:
+            self.events.poll()
+            if self.events.has_num():
+                for numkey in self.events.get_nums():
+                    self.renderer.maximise_window(numkey)
+            if self.events.has_return():
+                break
 
     def loop(self):
         self.running = True
