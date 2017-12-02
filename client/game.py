@@ -92,7 +92,7 @@ class Game:
 
     def loop(self):
         self.running = True
-        was_n_down = False
+        self.was_n_down = False
         c_time = time.time()
         while self.running:
             self.client.listen()
@@ -128,7 +128,7 @@ class Game:
                 ball.move(l_deltaT)
 
         if self.events.has_key(sdl2.SDLK_n):
-            if not was_n_down:
+            if not self.was_n_down:
                 t = 0
                 for x in range(0, 10**10):
                     if x not in ball_list:
@@ -146,9 +146,9 @@ class Game:
                     'time': c_time
                 }
                 self.client.send_ballchange(msg)
-            was_n_down = True
+            self.was_n_down = True
         else:
-            was_n_down = False
+            self.was_n_down = False
 
         balls_to_remove = []
         for i, ball in self.ball_list.items():
