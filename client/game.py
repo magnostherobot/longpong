@@ -103,15 +103,18 @@ class Game:
         touched = {x : False for x in self.ball_list}  
         for msg in msgs:
             if (msg['command'] == 'bchange'):
-                touched[msg['ball_id']] = True
-                ball = self.ball_list[msg['ball_id']]
-                if 'vel' in msg:
-                    ball.vel = (msg['vel']['x'], msg['vel']['y'])
-                if 'pos' in msg:
-                    ball.pos = (msg['pos']['x'], msg['pos']['y'])
-                if 'size' in msg:
-                    ball.size = (msg['size']['x'], msg['size']['y'])
+                if msg['ball_id'] in ball_list:
+                    ball = self.ball_list[msg['ball_id']]
+                    if 'vel' in msg:
+                        ball.vel = (msg['vel']['x'], msg['vel']['y'])
+                    if 'pos' in msg:
+                        ball.pos = (msg['pos']['x'], msg['pos']['y'])
+                    if 'size' in msg:
+                        ball.size = (msg['size']['x'], msg['size']['y'])
+                else:
+                    ball_list[msg['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
 
+                touched[msg['ball_id']] = True
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
 
