@@ -2,6 +2,8 @@ import ctypes
 import sdl2
 import sdl2.ext
 
+from bitfont import bitfont
+
 class Screen:
     def __init__(self, title, counter, dimensions):
         self.window = sdl2.ext.Window(title + " " + str(counter + 1), dimensions, flags = sdl2.SDL_WINDOW_RESIZABLE)
@@ -34,12 +36,15 @@ class Renderer:
     def set_offset(self, offset):
         self.offset = offset
 
-    def render(self, balls, paddles):
+    def render(self, balls, paddles, score):
         offset = self.offset
         for screen in self.screens:
             # Clear the screen with the background colour
             screen.renderer.color = sdl2.ext.Color(self.bg[0], self.bg[1], self.bg[2], 255)
             sdl2.SDL_RenderClear(screen.renderer.sdlrenderer)
+            # Set a muted foreground colour for drawing the score
+            screen.renderer.color = sdl2.ext.Color(self.fg[0] / 3, self.fg[1] / 3, self.fg[2] / 3, 255)
+            self.draw_score(screen, score)
             # Set the foreground colour for drawing
             screen.renderer.color = sdl2.ext.Color(self.fg[0], self.fg[1], self.fg[2], 255)
             # Draw the elements
@@ -67,6 +72,32 @@ class Renderer:
                     int(paddle.width * screen.height),
                     int(paddle.height * screen.height))
             sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
+    
+    def draw_score(self, screen, scores):
+        size = 20
+        offset = 0
+        for score in map(bitfont, scores):
+            side = offset == 0
+            offset = self.from_center(screen, len(score), size, side)
+            for digit in score:
+                offset_x = offset
+                offset_y = size
+                for i in range(len(digit)):
+                    if i > 0 and i % 3 == 0:
+                        offset_y += size
+                        offset_x = offset
+                    if digit[i]:
+                        rect = sdl2.SDL_Rect(offset_x, offset_y, size, size)
+                        sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
+                    offset_x += size
+                offset = offset_x + size
+            offset += 2 * size
+
+    def from_center(self, screen, count, size, side):
+        if side:
+            return int(screen.width / 2 - count * size * 4 - 2 * size)
+        else:
+            return int(screen.width / 2 + 2 * size)
 
     def maximise_window(self, index):
         if index > 0 and index <= len(self.screens):
