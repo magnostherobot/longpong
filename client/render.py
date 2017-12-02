@@ -1,3 +1,4 @@
+import ctypes
 import sdl2
 import sdl2.ext
 
@@ -43,28 +44,36 @@ class Renderer:
             screen.renderer.color = sdl2.ext.Color(self.fg[0], self.fg[1], self.fg[2], 255)
             # Draw the elements
             for ball in balls:
-                self.draw_ball(screen.renderer, offset, ball)
+                self.draw_ball(screen, offset, ball)
             for paddle in paddles:
-                self.draw_paddle(screen.renderer, paddle)
+                self.draw_paddle(screen, offset, paddle)
             # Display this screen
             sdl2.SDL_RenderPresent(screen.renderer.sdlrenderer)
             # Increase the rendering offset
-            offset += int(screen.width * screen.height)
+            offset += float(screen.width) / float(screen.height)
 
-    def draw_ball(self, renderer, offset, ball):
+    def draw_ball(self, screen, offset, ball):
         if ball != None:
-            rect = sdl2.SDL_Rect(ball.x - offset, ball. - offsety, ball.width, ball.height)
-            sdl2.SDL_RenderFillRect(renderer.sdlrenderer, rect)
+            rect = sdl2.SDL_Rect(int((ball.x - offset) * screen.height),
+                    int(ball.y * screen.height),
+                    int(ball.width * screen.height),
+                    int(ball.height * screen.height))
+            sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
 
-    def draw_paddle(self, renderer, offset, paddle):
+    def draw_paddle(self, screen, offset, paddle):
         if paddle != None:
-            rect = sdl2.SDL_Rect(paddle.x, paddle.y, paddle.width, paddle.height)
-            sdl2.SDL_RenderFillRect(renderer.sdlrenderer, rect)
+            rect = sdl2.SDL_Rect(int((paddle.x - offset) * screen.height),
+                    int(paddle.y * screen.height),
+                    int(paddle.width * screen.height),
+                    int(paddle.height * screen.height))
+            sdl2.SDL_RenderFillRect(screen.renderer.sdlrenderer, rect)
 
     def maximise_window(self, index):
         if index > 0 and index <= len(self.screens):
             window = self.screens[index - 1].window
-            window.maximize()
+            rect = sdl2.SDL_Rect()
+            sdl2.SDL_GetDisplayBounds(index - 1, ctypes.byref(rect))
+            sdl2.SDL_SetWindowSize(window.window, rect.w, rect.h)
             sdl2.SDL_SetWindowFullscreen(window.window, sdl2.SDL_WINDOW_FULLSCREEN)
 
     def get_screen_widths(self):
