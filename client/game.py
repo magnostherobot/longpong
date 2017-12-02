@@ -1,6 +1,7 @@
 import time
 import sdl2
 import sdl2.ext
+import sys
 
 class Ball:
     def __init__(self, pos, vel, size):
@@ -54,6 +55,8 @@ class Game:
                 break
             # Tell the server to start if the spacebar is pressed
             self.events.poll()
+            if self.events.has_quit():
+                sys.exit(0)
             if self.events.has_space():
                 self.client.send_start()
         # Run the game loop
@@ -62,6 +65,8 @@ class Game:
     def place_windows(self):
         while True:
             self.events.poll()
+            if self.events.has_quit():
+                sys.exit(0)
             if self.events.has_num():
                 for numkey in self.events.get_nums():
                     self.renderer.maximise_window(numkey)
