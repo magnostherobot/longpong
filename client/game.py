@@ -45,6 +45,7 @@ class Game:
         self.paddle_list = []
         self.ball_list = {}
         self.score = (0, 0)
+        self.width = 0
 
     def start(self):
         self.place_windows()
@@ -59,6 +60,7 @@ class Game:
                 msg = self.client.get_messages()
                 print("message is "+ str(msg))
                 if msg != []:
+                    self.width = msg[0]['info']['total_w']
                     self.renderer.set_offset(msg[0]['info']['offset'])
                     self.ball_list[msg[0]['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
                     print(self.ball_list)
@@ -125,7 +127,7 @@ class Game:
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
 
-        if self.event.has_key(sdl2.SDLK_n):
+        if self.events.has_key(sdl2.SDLK_n):
             if not was_n_down:
                 t = 0
                 for x in range(0, 10**10):
@@ -181,7 +183,7 @@ class Game:
             if ball.pos[0] <= 0:
                 self.score = (self.score[0], self.score[1] + 1)
                 balls_to_remove.append((i, 1))
-            elif ball.pos[0] + ball.size[0] >= self.renderer.get_rightmost_edge():
+            elif ball.pos[0] + ball.size[0] >= self.width:
                 self.score = (self.score[0] + 1, self.score[1])
                 balls_to_remove.append((i, -1))
         for (ball, direction) in balls_to_remove:
