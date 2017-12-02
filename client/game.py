@@ -115,7 +115,7 @@ class Game:
 
         for i, ball in self.ball_list.items():
             # move the balls
-            print(ball)
+            # print(ball)
             if not touched[i]:
                 ball.move(deltaT)
             # bounce the balls off the walls
@@ -141,4 +141,20 @@ class Game:
                         'time': c_time
                     }
                     self.client.send_ballchange(msg)
-
+        # self.events.has_key
+        paddle_speed = 0.2 * deltaT
+        print(self.paddle_list[0].pos[1])
+        if len(self.paddle_list) >= 1:
+            if self.events.has_key(sdl2.SDLK_UP):
+                if self.paddle_list[0].pos[1] > 0:
+                    self.paddle_list[0].pos = (self.paddle_list[0].pos[0], self.paddle_list[0].pos[1] - paddle_speed)
+            elif self.events.has_key(sdl2.SDLK_DOWN):
+                if self.paddle_list[0].pos[1] + self.paddle_list[0].size[1] < 1:
+                    self.paddle_list[0].pos = (self.paddle_list[0].pos[0], self.paddle_list[0].pos[1] + paddle_speed)
+        if len(self.paddle_list) >= 2:
+            if self.events.has_key(sdl2.SDLK_w):
+                if self.paddle_list[1].pos[1] > 0:
+                    self.paddle_list[1].pos = (self.paddle_list[1].pos[0], self.paddle_list[1].pos[1] - paddle_speed)
+            elif self.events.has_key(sdl2.SDLK_s):
+                if self.paddle_list[1].pos[1] + self.paddle_list[1].size[1] < 1:
+                    self.paddle_list[1].pos = (self.paddle_list[1].pos[0], self.paddle_list[1].pos[1] + paddle_speed)
