@@ -14,8 +14,8 @@ class Ball:
 
     def move(self, dt):
         self.pos = (
-                self.pos[0] + (self.vel[0] * dt) / 10,
-                self.pos[1] + (self.vel[1] * dt) / 10,
+                self.pos[0] + (self.vel[0] * dt) / 5,
+                self.pos[1] + (self.vel[1] * dt) / 5,
                 )
 
     def is_touching(self, paddle):
@@ -38,6 +38,7 @@ class Game:
         self.renderer = renderer
         self.paddle_list = []
         self.ball_list = {}
+        self.score = (0, 0)
 
     def start(self):
         self.place_windows()
@@ -56,9 +57,10 @@ class Game:
                     self.ball_list[msg[0]['ball_id']] = Ball(msg[0]['pos'],msg[0]['vel'],msg[0]['size'])
                     print(self.ball_list)
                     if (msg[0]['info']['offset'] == 0):
-                        self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
-                    elif (self.renderer.get_rightmost_edge() == msg[0]['info']['total_w']):
-                        self.paddle_list.append(Paddle((0.1, 0.1), (0.01, 0.1)))
+                        self.paddle_list.append(Paddle((0.1, 0.1), (0.05, 0.2)))
+                    rightmost_edge = self.renderer.get_rightmost_edge()
+                    if (rightmost_edge == msg[0]['info']['total_w']):
+                        self.paddle_list.append(Paddle((rightmost_edge - 0.05 - 0.1, 0.1), (0.05, 0.2)))
                     break
             # Tell the server to start if the spacebar is pressed
             self.events.poll()
@@ -93,7 +95,7 @@ class Game:
             p_time = c_time
             c_time = time.time()
             self.update(c_time, p_time)
-            self.renderer.render(self.ball_list.values(), self.paddle_list, (0, 0))
+            self.renderer.render(self.ball_list.values(), self.paddle_list, self.score)
 
     def update(self, c_time, p_time):
         deltaT = c_time - p_time
@@ -102,20 +104,19 @@ class Game:
         for msg in msgs:
             if (msg['command'] == 'bchange'):
                 touched[msg['ball_id']] = True
-
-                if vel in msg:
-                    ball.vel = (msg['vel'][0], msg['vel'][1])
-                if pos in msg:
-                    ball.pos = (msg['pos'][0], msg['pos'][1])
-                if size in msg:
-                    ball.size = (msg['size'][0], msg['size'][1])
+                ball = self.ball_list[msg['ball_id']]
+                if 'vel' in msg:
+                    ball.vel = (msg['vel']['x'], msg['vel']['y'])
+                if 'pos' in msg:
+                    ball.pos = (msg['pos']['x'], msg['pos']['y'])
+                if 'size' in msg:
+                    ball.size = (msg['size']['x'], msg['size']['y'])
 
                 l_deltaT = c_time - msg['time']
                 ball.move(l_deltaT)
 
+        balls_to_remove = []
         for i, ball in self.ball_list.items():
-            # move the balls
-            # print(ball)
             if not touched[i]:
                 ball.move(deltaT)
             # bounce the balls off the walls
@@ -126,8 +127,8 @@ class Game:
             # bounce the balls off the paddles
             for paddle in self.paddle_list:
                 if ball.is_touching(paddle):
-                    ball.vel[0] = -1.1 * ball.vel[0]
-                    ball.vel[1] = ball.vel[1] + 1 * ((paddle.pos[1] + (paddle.size[1] / 2)) - (ball.pos[1] + (ball.size[1] / 2)))
+                    ball.vel = (-1.1 * ball.vel[0],
+                            ball.vel[1] + 1 * ((paddle.pos[1] + (paddle.size[1] / 2)) - (ball.pos[1] + (ball.size[1] / 2))))
                     msg = {
                         'ball_id': i,
                         'vel': {
@@ -141,6 +142,15 @@ class Game:
                         'time': c_time
                     }
                     self.client.send_ballchange(msg)
+            # ball goes off the edge of the screen
+            if ball.pos[0] <= 0:
+                self.score = (self.score[0], self.score[1] + 1)
+                balls_to_remove.append(i)
+            elif ball.pos[0] + ball.size[0] >= self.renderer.get_rightmost_edge():
+                self.score = (self.score[0] + 1, self.score[1])
+                balls_to_remove.append(i)
+        for ball in balls_to_remove:
+            del self.ball_list[ball]
         # self.events.has_key
         paddle_speed = 0.2 * deltaT
         print(self.paddle_list[0].pos[1])

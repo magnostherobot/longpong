@@ -14,7 +14,7 @@ function forward(d) {
         console.log('game starting!');
         let t = [...clients]
           .map(x => x.scr_w)
-          .reduce((a, b) => { return parseInt(a) + parseInt(b) }, 0);
+          .reduce((a, b) => { return parseFloat(a) + parseFloat(b) }, 0);
         let i = 0;
         let time = (new Date()).getTime();
         [...clients]

@@ -57,7 +57,7 @@ class Client:
         jsonVal = json.dumps(msg)
         self.sock.sendall(str(jsonVal).encode())
 
-    def send_ballchange(self,message):
+    def send_ballchange(self, msg):
         msg['command'] = "bchange"
         jsonVal = json.dumps(msg)
         self.sock.sendall(str(jsonVal).encode())
