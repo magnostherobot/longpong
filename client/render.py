@@ -23,6 +23,15 @@ class Renderer:
         Initialise the renderer with a foreground colour and a background colour
         and create an SDL2 window for drawing to. This assumes that SDL2 has
         already been initialised.
+
+        Arguments:
+        title -- the title to give the client windows
+        dimensions -- the dimensions (in pixels) at which to start the windows
+        num_windows -- the number of windows to run the client with
+
+        Keyword arguments:
+        fg -- the foreground colour to draw with (default (255, 255, 255))
+        bg -- the background colour to draw with (default (0, 0, 0))
         """
         self.fg = fg
         self.bg = bg
@@ -34,6 +43,7 @@ class Renderer:
             screen.window.show()
 
     def set_offset(self, offset):
+        """Set this client's offset in the full-sized screen made by all clients."""
         self.offset = offset
 
     def render(self, balls, paddles, score):
@@ -108,14 +118,10 @@ class Renderer:
             sdl2.SDL_SetWindowFullscreen(window.window, sdl2.SDL_WINDOW_FULLSCREEN)
 
     def get_rightmost_edge(self):
-        """
-        Get the relative coordinate of the rightmost edge.
-        """
+        """Get the relative coordinate of the rightmost edge."""
         return self.offset + sum(self.get_screen_widths())
 
     def get_screen_widths(self):
-        """
-        Get the relative screen widths in screen order.
-        """
+        """Get the relative screen widths in screen order."""
         # Window height is '1' between all clients, so divide the width by the height
         return list(map(lambda screen: float(screen.width) / float(screen.height), self.screens))
