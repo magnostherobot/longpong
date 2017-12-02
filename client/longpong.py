@@ -1,6 +1,7 @@
 import sdl2.ext
 import sys
 
+import client
 import events
 import game
 import render
