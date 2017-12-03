@@ -1,4 +1,4 @@
-#!/bin/node
+#!/usr/bin/env node
 
 const net = require('net');
 const port = parseInt(process.argv[2]);
